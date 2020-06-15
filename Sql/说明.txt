@@ -1,0 +1,2 @@
+CAdoLx类：
+在32位配置中：project -> setting -> C/C++ ->perprocessor ->perprocessor definitions :  里面添加 宏   _AFX_NO_DAO_SUPPORT

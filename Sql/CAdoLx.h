@@ -7,6 +7,7 @@
 #pragma once
 #pragma warning (disable:4146)
 #import "c:\program files\common files\system\ado\msado15.dll" no_namespace rename("EOF","adoEOF")rename("BOF","adoBOF")rename ("EOS","adoEOS")
+//#import "E:\AÎÒµÄ±Ê¼Ç\PhdNotes\Sql\msado15.dll" no_namespace rename ("EOF","EndOfFile") rename ("EOS","EndOfStream")
 
 
 class CAdoLx
