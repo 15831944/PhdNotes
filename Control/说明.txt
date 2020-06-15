@@ -1,0 +1,5 @@
+CReporCtrl类：
+1、需要添加XTToolkit的sdk
+2、需要在stdafx.h文件指定位置添加
+#include "XTPResource.h"
+#include "XTToolkitPro.h"

@@ -1,0 +1,2 @@
+CExcelLibXl类：
+1、需要添加LibXL-for-Windows-3.8.0的sdk
