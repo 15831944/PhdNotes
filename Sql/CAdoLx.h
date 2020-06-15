@@ -8,6 +8,7 @@
 #pragma warning (disable:4146)
 #import "c:\program files\common files\system\ado\msado15.dll" no_namespace rename("EOF","adoEOF")rename("BOF","adoBOF")rename ("EOS","adoEOS")
 
+
 class CAdoLx
 {
 	_RecordsetPtr m_pRst;		//记录对象智能指针
@@ -35,7 +36,7 @@ public:
 	
 	// Summary:   连接数据库
 	// Time:	  2020年3月21日 peihaodong
-	// Explain:	  数据库类型；数据库名；密码；用户名；ip地址；
+	// Explain:	  数据库类型；数据库名；密码；用户名；ip地址；端口号（1433）
 	BOOL Connect(EType eType, LPCTSTR szDatabase, LPCTSTR szPass = NULL, LPCTSTR szUser = NULL, LPCTSTR szHost = NULL,LPCTSTR szPort = NULL);
 
 	//增删改插入数据
