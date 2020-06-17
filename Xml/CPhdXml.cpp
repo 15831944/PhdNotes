@@ -5,12 +5,21 @@
 
 
 CPhdXml::CPhdXml()
+	:m_pDocument(nullptr)
+	, m_pDeclaration(nullptr)
+	, m_pElementRoot(nullptr)
 {
 }
 
 
 CPhdXml::~CPhdXml()
 {
+	if (m_pDocument)
+	{
+		m_pDocument->Clear();	//清除子节点
+		delete m_pDocument;		//释放自己
+		m_pDocument = NULL;
+	}
 }
 
 bool CPhdXml::OpenXmlFile(LPCTSTR szFilePath)

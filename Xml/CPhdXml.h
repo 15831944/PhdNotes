@@ -6,6 +6,10 @@ class TiXmlElement;
 
 //USES_CONVERSION;转换宏	T2A：wchar_t->char	A2T：char->wchar_t
 
+/*tinyXml内存泄漏问题：
+https://blog.csdn.net/weixin_30734435/article/details/96006489
+*/
+
 class CPhdXml
 {
 public:
