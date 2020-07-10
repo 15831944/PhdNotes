@@ -2,6 +2,7 @@
 #include "PhdEntity.h"
 #include "PhdUtility.h"
 #include "PhdConver.h"
+#include "PhdInline.h"
 
 
 
@@ -99,6 +100,32 @@ bool PhdEntity::CreateRegion(const AcArray<AcDbEntity*>& arrpEnt, AcArray<AcDbRe
 	}
 }
 
+bool PhdEntity::CreateRegion(AcDbEntity* pEnt, AcArray<AcDbRegion*>& arrpRegion)
+{
+	AcDbVoidPtrArray curves;
+	curves.append(static_cast<void*>(pEnt));
+
+	AcDbVoidPtrArray regions;
+	AcDbRegion* pRegion = NULL;
+	Acad::ErrorStatus es = AcDbRegion::createFromCurves(curves, regions);
+	if (es == Acad::eOk)
+	{
+		for (int i = 0; i < regions.length(); ++i)
+		{
+			pRegion = (AcDbRegion*)regions[i];
+			if (NULL != pRegion)
+				arrpRegion.append(pRegion);
+		}
+		return true;
+	}
+	else
+	{// 如果创建不成功，也要删除已经生成的面域;
+		for (int i = 0; i < regions.length(); i++)
+			delete (AcRxObject*)regions[i];
+		return false;
+	}
+}
+
 AcDbArc* PhdEntity::CreateArc(const AcGePoint3d& ptStart, const AcGePoint3d& ptOnArc, const AcGePoint3d& ptEnd)
 {
 	// 使用几何类获得圆心、半径;
@@ -155,6 +182,46 @@ AcDbArc* PhdEntity::CreateArcByPt2(const AcGePoint3d& ptCenter, const AcGePoint3
 	AcDbArc* pArc = new AcDbArc(ptCenter, radius, startAngle, endAngle);
 
 	return pArc;
+}
+
+AcDbArc* PhdEntity::CreateArcBy3Pt(const AcGePoint3d& pt1,
+	const AcGePoint3d& ptOnArc, const AcGePoint3d& pt2)
+{
+	AcGeCircArc2d geArc(PhdConver::ToPt2d(pt1),
+		PhdConver::ToPt2d(ptOnArc), PhdConver::ToPt2d(pt2));
+	AcGePoint2d ptCenter = geArc.center();
+	double dRadius = geArc.radius();
+	AcDbCircle* pCircle = CreateCircle(PhdConver::ToPt3d(ptCenter),dRadius);
+	std::shared_ptr<AcDbCircle> apCircle(pCircle);
+	AcGePoint3dArray arrptSplit;
+	arrptSplit.append(pt1);
+	arrptSplit.append(pt2);
+	AcArray<AcDbCurve*> arrpSplit = PhdUtility::SplitCurve(pCircle,arrptSplit);
+	if (arrptSplit.length() != 2)
+	{
+		for (int i = 0; i < arrpSplit.length(); i++)
+			DEL(arrpSplit[i]);
+		return nullptr;
+	}
+	AcDbArc* pArcSplit1 = AcDbArc::cast(arrpSplit[0]);
+	AcDbArc* pArcSplit2 = AcDbArc::cast(arrpSplit[1]);
+	if (!pArcSplit1 || !pArcSplit2)
+	{
+		for (int i = 0; i < arrpSplit.length(); i++)
+			DEL(arrpSplit[i]);
+		return nullptr;
+	}
+	//判断该点是否在圆弧上
+	if (PhdUtility::IsPtOnCurve(ptOnArc, pArcSplit1))
+	{
+		DEL(pArcSplit2);
+		return pArcSplit1;
+	}
+	else
+	{
+		DEL(pArcSplit1);
+		return pArcSplit2;
+	}
 }
 
 AcDbArc* PhdEntity::CreateArcByPt2(const AcGePoint3d& ptCenter, const AcGePoint3d& ptStart, 

@@ -177,7 +177,7 @@ bool CPhdXml::AddNodeByPath(TiXmlElement* pRoot, LPCTSTR szNodePath,
 			pNewNode->LinkEndChild(pNewText);
 		}
 		m_pElementRoot->InsertEndChild(*pNewNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 
 		return true;
 	}
@@ -201,7 +201,7 @@ bool CPhdXml::AddNodeByPath(TiXmlElement* pRoot, LPCTSTR szNodePath,
 			pNewNode->LinkEndChild(pNewText);
 		}
 		pFindNode->InsertEndChild(*pNewNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 
 		return true;
 	}
@@ -237,7 +237,7 @@ bool CPhdXml::AddNodeByTextPath(TiXmlElement* pRoot, LPCTSTR szNodePath, LPCTSTR
 			pNewNode->LinkEndChild(pNewText);
 		}
 		m_pElementRoot->InsertEndChild(*pNewNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 
 		return true;
 	}
@@ -259,7 +259,7 @@ bool CPhdXml::AddNodeByTextPath(TiXmlElement* pRoot, LPCTSTR szNodePath, LPCTSTR
 			pNewNode->LinkEndChild(pNewText);
 		}
 		pTempFind->InsertEndChild(*pNewNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 
 		return true;
 	}
@@ -453,7 +453,7 @@ bool CPhdXml::DeleteNode(LPCTSTR nodeName) const
 		if (pNode == m_pElementRoot)
 		{//如果是根节点
 			m_pDocument->RemoveChild(m_pElementRoot);
-			m_pDocument->SaveFile(T2A(m_strXmlPath));
+			//m_pDocument->SaveFile(T2A(m_strXmlPath));
 			return true;
 		}
 		else
@@ -470,7 +470,7 @@ bool CPhdXml::DeleteNode(LPCTSTR nodeName) const
 				return false;
 			}
 			parentElem->RemoveChild(pNode);
-			m_pDocument->SaveFile(T2A(m_strXmlPath));
+			//m_pDocument->SaveFile(T2A(m_strXmlPath));
 			return true;
 		}
 	}
@@ -485,7 +485,7 @@ bool CPhdXml::DeleteNode(TiXmlElement* pNode) const
 	if (pNode == m_pElementRoot)
 	{//如果是根节点
 		m_pDocument->RemoveChild(m_pElementRoot);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 		return true;
 	}
 	else
@@ -499,7 +499,7 @@ bool CPhdXml::DeleteNode(TiXmlElement* pNode) const
 			return false;
 
 		parentElem->RemoveChild(pNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 		return true;
 	}
 }
@@ -512,7 +512,7 @@ bool CPhdXml::DeleteNodeAllText(TiXmlElement* pNode) const
 	for (TiXmlNode* p = pFirstNode; p != NULL; p = p->NextSibling())
 	{
 		pNode->RemoveChild(p);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 	}
 
 	return true;
@@ -528,8 +528,8 @@ bool CPhdXml::DeleteAllChildNode(TiXmlElement* pNode) const
 	for (TiXmlElement* p = pFirstNode; p != NULL; p = p->NextSiblingElement())
 	{
 		pNode->RemoveChild(p);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
 	}
+	//m_pDocument->SaveFile(T2A(m_strXmlPath));
 	return true;
 }
 
@@ -538,7 +538,8 @@ bool CPhdXml::DeleteAttribute(TiXmlElement* pNode, LPCTSTR szAttName) const
 	USES_CONVERSION;
 
 	pNode->RemoveAttribute(T2A(szAttName));
-	return m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath))
+	return true;
 }
 
 bool CPhdXml::ModifyNodeText(LPCTSTR nodeName, LPCTSTR text) const
@@ -551,7 +552,7 @@ bool CPhdXml::ModifyNodeText(LPCTSTR nodeName, LPCTSTR text) const
 		//pNode->Clear();//删除原节点下的其他元素
 		TiXmlText *pText = new TiXmlText(T2A(text));
 		pNode->LinkEndChild(pText);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 		return true;
 	}
 
@@ -566,7 +567,8 @@ bool CPhdXml::SetNodeText(TiXmlElement* pNode, LPCTSTR text) const
 
 	TiXmlText *pText = new TiXmlText(T2A(text));
 	pNode->LinkEndChild(pText);
-	return m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath))
+	return true;
 }
 
 bool CPhdXml::SetNodeAttribute(TiXmlElement* pNode, const std::map<CString, CString>& mapAttribute) const
@@ -578,14 +580,14 @@ bool CPhdXml::SetNodeAttribute(TiXmlElement* pNode, const std::map<CString, CStr
 	for (iterCur = mapCurAtt.begin(); iterCur != mapCurAtt.end(); iterCur++)
 	{
 		pNode->RemoveAttribute(T2A(iterCur->first));
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 	}
 
 	std::map<CString, CString>::const_iterator iter;
 	for (iter = mapAttribute.begin(); iter != mapAttribute.end(); iter++)
 	{
 		pNode->SetAttribute(T2A(iter->first), T2A(iter->second));
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 	}
 	return true;
 }
@@ -595,7 +597,8 @@ bool CPhdXml::SetNodeAttribute(TiXmlElement* pNode, LPCTSTR szAttName, LPCTSTR s
 	USES_CONVERSION;
 
 	pNode->SetAttribute(T2A(szAttName), T2A(szAttValue));
-	return m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath))
+	return true;
 }
 
 bool CPhdXml::ModifyNodeAttribution(LPCTSTR nodeName, const std::map<CString, CString> &mapAttribute) const
@@ -618,7 +621,7 @@ bool CPhdXml::ModifyNodeAttribution(LPCTSTR nodeName, const std::map<CString, CS
 				}
 			}
 		}
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 		return true;
 	}
 
@@ -642,7 +645,7 @@ bool CPhdXml::ModifyNodeAttribution(TiXmlElement* pNode, const std::map<CString,
 			}
 		}
 	}
-	m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath));
 	return true;
 }
 
@@ -660,7 +663,7 @@ bool CPhdXml::AddNode(LPCTSTR nodeName, LPCTSTR newNodeName, LPCTSTR text /*= NU
 			pNewNode->LinkEndChild(pNewText);
 		}
 		pNode->InsertEndChild(*pNewNode);
-		m_pDocument->SaveFile(T2A(m_strXmlPath));
+		//m_pDocument->SaveFile(T2A(m_strXmlPath));
 		return true;
 	}
 
@@ -692,7 +695,8 @@ bool CPhdXml::AddNodeText(TiXmlElement* pNode, LPCTSTR text) const
 
 	TiXmlText *pNewText = new TiXmlText(T2A(text));
 	TiXmlNode* pRealNode = pNode->LinkEndChild(pNewText);
-	return m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath));
+	return true;
 }
 
 bool CPhdXml::SetNodeName(TiXmlElement* pNode, LPCTSTR name) const
@@ -700,7 +704,8 @@ bool CPhdXml::SetNodeName(TiXmlElement* pNode, LPCTSTR name) const
 	USES_CONVERSION;
 
 	pNode->SetValue(T2A(name));
-	return m_pDocument->SaveFile(T2A(m_strXmlPath));
+	//m_pDocument->SaveFile(T2A(m_strXmlPath));
+	return true;
 }
 
 TiXmlElement* CPhdXml::GetParentNode(TiXmlElement* pNode) const
@@ -752,7 +757,7 @@ bool CPhdXml::CreateXmlFile(LPCTSTR szXmlPath, LPCTSTR szRootName, LPCTSTR szRoo
 
 	//关联XML文档，成为XML文档的根节点
 	m_pDocument->LinkEndChild(m_pElementRoot);
-	m_pDocument->SaveFile(T2A(szXmlPath));
+	//m_pDocument->SaveFile(T2A(szXmlPath));
 
 	return true;
 }

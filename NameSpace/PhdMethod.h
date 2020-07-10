@@ -56,7 +56,10 @@ namespace PhdMethod {
 	bool RenameFileOrDir(LPCTSTR szOldName,LPCTSTR szNewName);
 
 	//功能：打开指定文件
-	bool OpenFile(LPCTSTR szFilePath);
+	bool OpenFile(LPCTSTR szFilePath,LPCTSTR szParame = NULL);
+
+	//创建进程启动exe
+	bool LaunchExe(LPCTSTR szFilePath, LPCTSTR szParame = NULL);
 
 	//功能：关闭当前打开的文件
 	//szFileName-输入桌面上的程序名称
@@ -72,7 +75,7 @@ namespace PhdMethod {
 	// Parameters: 	
 	//    strFilePath		- 	输入文件路径
 	//    strParame		- 	输入执行文件所需的参数
-	int GetProcessExitReturn(LPCTSTR szFilePath, LPCTSTR szParame = _T(""));
+	int GetProcessExitReturn(LPCTSTR szFilePath, LPCTSTR szParame = NULL);
 
 	//功能：移除重复元素
 	template <class  T>
@@ -173,10 +176,10 @@ namespace PhdMethod {
 	// Explain:	  
 	CTime GetTimeOfDayLast(const CTime& time,int nDay);
 
-	// Summary:   清理数据库
-	// Time:	  2020年3月23日 peihaodong
-	// Explain:	  
-	void PurgeDatabase(AcDbDatabase* pDb);
+// 	// Summary:   清理数据库
+// 	// Time:	  2020年3月23日 peihaodong
+// 	// Explain:	  
+// 	void PurgeDatabase(AcDbDatabase* pDb);
 
 }
 

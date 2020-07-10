@@ -2331,6 +2331,7 @@ void PhdUtility::ModifyLinePt(AcDbLine* pLine, const AcGePoint3d& ptFrom, const 
 
 CString PhdUtility::GetRcStr(int nID)
 {
+	CAcModuleResourceOverride rs;
 	CString str;
 	str.LoadStringW(nID);
 	return str;
@@ -2429,6 +2430,51 @@ int PhdUtility::JudgeVectorLeftOrRight(const AcGeVector3d& vec1,
 		return 1;
 	else
 		return 2;
+}
+
+bool PhdUtility::PtIsInClosePline(const AcGePoint3d& pt,
+	AcDbPolyline* pPline)
+{
+	//创建面域
+	AcArray<AcDbRegion*> arrRegion;
+	if (!PhdEntity::CreateRegion(pPline, arrRegion))
+		return false;
+	//判断点是否在面域上
+	AcGePlane plane;
+	bool bFlag = false;
+	for (int i = 0; i < arrRegion.length(); i++)
+	{
+		//创建射线，根据射线与面域边线相交的点数为奇数就说明点在面域上的理论
+		AcDbRay* pRay = new AcDbRay;
+		pRay->setBasePoint(pt);
+		pRay->setUnitDir(AcGeVector3d(1, 0, 0));
+
+		plane = AcGePlane(AcGePoint3d(0, 0, 0), AcGeVector3d(0, 0, 1));
+		AcGePoint3dArray ptArray;
+		Acad::ErrorStatus es = arrRegion[i]->intersectWith(pRay, AcDb::kOnBothOperands, 
+			plane, ptArray, 0, 0);//AcDb::kExtendArg
+		DEL(pRay);
+		if (es != Acad::eOk)
+			continue;
+		int iNum = ptArray.length();
+		if ((iNum % 2) == 0) 
+			continue;
+		bFlag = true;
+		break;
+	}
+	for (int i = 0; i < arrRegion.length(); i++)
+	{
+		DEL(arrRegion[i]);
+	}
+	return bFlag;
+}
+
+bool PhdUtility::IsColinear(const AcGePoint3d& pt1, const AcGePoint3d& pt2, const AcGePoint3d& pt3)
+{
+	AcGeLineSeg2d line1(PhdConver::ToPt2d(pt1),PhdConver::ToPt2d(pt2));
+	AcGeLineSeg2d line2(PhdConver::ToPt2d(pt2), PhdConver::ToPt2d(pt3));
+	bool bRt = line1.isColinearTo(line2);
+	return bRt;
 }
 
 bool PhdUtility::FilletCurve(double dRadius, AcDbArc* pArc1, const AcGePoint3d& pt1, AcDbArc* pArc2, const AcGePoint3d& pt2, AcDbArc*& pArcFillet)
@@ -2729,6 +2775,22 @@ double PhdUtility::GetArcBulge(AcDbArc* pArc)
 {
 	double dStartAngle = pArc->startAngle();
 	double dEndAngle = pArc->endAngle();
+	double dAlfa = dEndAngle - dStartAngle;
+
+	if (dAlfa < 0.0)//如果终点角度小于起点角度;
+	{
+		dAlfa = 2 * (atan(1.0) * 4) + dAlfa;
+	}
+	double dBulge = 0.0;
+	dBulge = tan((dAlfa) / 4.0);
+
+	return dBulge;
+}
+
+double PhdUtility::GetArcBulge(const AcGeCircArc2d& geArc)
+{
+	double dStartAngle = geArc.startAng();
+	double dEndAngle = geArc.endAng();
 	double dAlfa = dEndAngle - dStartAngle;
 
 	if (dAlfa < 0.0)//如果终点角度小于起点角度;

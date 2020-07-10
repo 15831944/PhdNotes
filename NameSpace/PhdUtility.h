@@ -112,6 +112,7 @@ namespace PhdUtility {
 	double GetArcBulge(double dAngleStart, double dAngleEnd);
 	double GetArcBulge(const AcDbObjectId& idArc);
 	double GetArcBulge(AcDbCurve* pCurve);
+	double GetArcBulge(const AcGeCircArc2d& geArc);
 
 	//功能：得到几何类对象
 	AcGeLine2d GetGeLine2d(AcDbLine* pLine);
@@ -343,6 +344,17 @@ namespace PhdUtility {
 	//1：左边   2：右边
 	int JudgeVectorLeftOrRight(const AcGeVector3d& vec1,
 		const AcGeVector3d& vec2);
+
+	// Summary:   点是否在闭合多段线内
+	// Time:	  2020年6月22日 peihaodong
+	// Explain:	  
+	bool PtIsInClosePline(const AcGePoint3d& pt,AcDbPolyline* pPline);
+
+	// Summary:   是否共线
+	// Time:	  2020年6月24日 peihaodong
+	// Explain:	  
+	bool IsColinear(const AcGePoint3d& pt1,const AcGePoint3d& pt2,
+		const AcGePoint3d& pt3);
 
 
 }

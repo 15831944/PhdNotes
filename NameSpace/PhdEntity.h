@@ -25,6 +25,7 @@ namespace PhdEntity {
 #pragma region 面域
 	//功能：创建面域
 	bool CreateRegion(const AcArray<AcDbEntity*>& arrpEnt, AcArray<AcDbRegion*>& arrpRegion);
+	bool CreateRegion(AcDbEntity* pEnt, AcArray<AcDbRegion*>& arrpRegion);
 
 #pragma endregion
 
@@ -40,6 +41,11 @@ namespace PhdEntity {
 	AcDbArc* CreateArcByPt2(const AcGePoint3d& ptCenter, const AcGePoint3d& ptStart, const AcGePoint3d& ptEnd);
 	AcDbArc* CreateArcByPt2(const AcGePoint3d& ptCenter, const AcGePoint3d& ptStart, 
 		const AcGePoint3d& ptEnd,const AcDbObjectId& idProEnt);
+	// Summary:   通过3点创建圆弧（不知道谁是起始点和终止点）
+	// Time:	  2020年6月24日 peihaodong
+	// Explain:	  
+	AcDbArc* CreateArcBy3Pt(const AcGePoint3d& pt1,const AcGePoint3d& ptOnArc,
+		const AcGePoint3d& pt2);
 
 	// Summary:   得到圆弧中点坐标
 	// Time:	  2020年2月17日 peihaodong

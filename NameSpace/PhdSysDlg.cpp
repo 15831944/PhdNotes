@@ -151,8 +151,22 @@ bool PhdSysDlg::SaveFileByDlg(CString& strSavePath, const std::vector<CString>& 
 	int nIndex = dlg.m_ofn.nFilterIndex;
 	strSavePath = dlg.GetPathName();
 	CString strFileExt = vecReverse[nIndex - 1];
-	strFileExt.Insert(0, _T('.'));
-	strSavePath += strFileExt;//文件完整路径
+	int nIndexFind = strSavePath.ReverseFind(_T('.'));
+	if (nIndexFind == -1)
+	{
+		strFileExt.Insert(0, _T('.'));
+		strSavePath += strFileExt;//文件完整路径
+	}
+	else
+	{
+		CString strRight = strSavePath.Right(strSavePath.GetLength() -nIndexFind-1);
+		if (strRight.CompareNoCase(strFileExt) != 0)
+		{
+			strFileExt.Insert(0, _T('.'));
+			strSavePath += strFileExt;//文件完整路径
+		}
+	}
+	
 	return true;
 }
 

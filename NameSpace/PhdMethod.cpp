@@ -2,12 +2,12 @@
 #include "PhdMethod.h"
 #include <TlHelp32.h>
 #include "PhdInline.h"
-#include "PhdDimStyle.h"
-#include "PhdGroup.h"
-#include "PhdLayer.h"
-#include "PhdLinetype.h"
-#include "PhdTextStyle.h"
-#include "PhdBlock.h"
+// #include "PhdDimStyle.h"
+// #include "PhdGroup.h"
+// #include "PhdLayer.h"
+// #include "PhdLinetype.h"
+// #include "PhdTextStyle.h"
+// #include "PhdBlock.h"
 
 
 #pragma region 内部函数
@@ -367,9 +367,9 @@ bool PhdMethod::RenameFileOrDir(LPCTSTR szOldName, LPCTSTR szNewName)
 	return ::MoveFile(szOldName, szNewName);
 }
 
-bool PhdMethod::OpenFile(LPCTSTR szFilePath)
+bool PhdMethod::OpenFile(LPCTSTR szFilePath, LPCTSTR szParame /*= NULL*/)
 {
-	HINSTANCE hNewExe = ShellExecute(NULL, _T("open"), szFilePath, NULL, NULL, SW_SHOW);
+	HINSTANCE hNewExe = ShellExecute(NULL, _T("open"), szFilePath, szParame, NULL, SW_SHOW);
 	if ((DWORD)hNewExe > 32)
 		return true;
 	else
@@ -382,6 +382,32 @@ bool PhdMethod::OpenFile(LPCTSTR szFilePath)
 	lpDirectory：用于指定默认目录。
 	lpShowCmd：若FileName参数是一个可执行程序，则此参数指定程序窗口的初始显示方式，否则此参数应设置为0。
 	*/
+}
+
+bool PhdMethod::LaunchExe(LPCTSTR szFilePath, LPCTSTR szParame /*= NULL*/)
+{
+	//启动ZWCAD
+	CString OutputPath = szFilePath;
+	if (szParame)
+	{
+		CString strParam = szParame;
+		OutputPath = OutputPath + _T(" ") + strParam;
+	}
+
+	STARTUPINFO si; //一些必备参数设置
+	memset(&si, 0, sizeof(STARTUPINFO));
+	si.cb = sizeof(STARTUPINFO);
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_SHOWNORMAL;
+	PROCESS_INFORMATION pi; //必备参数设置结束
+
+	//CString sCommand = _T(" /b D:\\work\\GitHub\\Setup\\OUTPUT\\Release_AUTOCAD\\load.scr");
+	//CString sCommand = _T(" /b \"./showui.scr\"");
+	//BOOL bRet = CreateProcess(NULL, OutputPath.GetBuffer(OutputPath.GetLength()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+	//BOOL bRet = CreateProcess(OutputPath.GetBuffer(OutputPath.GetLength()), sCommand.GetBuffer(OutputPath.GetLength()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+	BOOL bRet = CreateProcess(NULL, OutputPath.GetBuffer(OutputPath.GetLength()), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+	
+	return bRet;
 }
 
 bool PhdMethod::CloseCurOpenedFile(LPCTSTR szFileName)
@@ -458,13 +484,14 @@ void PhdMethod::CloseProcess(LPCTSTR sProcessName)
 	}
 }
 
-int PhdMethod::GetProcessExitReturn(LPCTSTR szFilePath, LPCTSTR szParame /*= _T("")*/)
+int PhdMethod::GetProcessExitReturn(LPCTSTR szFilePath, LPCTSTR szParame /*= NULL*/)
 {
 	SHELLEXECUTEINFO  ShExecInfo = { 0 };
 	ShExecInfo.cbSize = sizeof(SHELLEXECUTEINFO);
 	ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
 	ShExecInfo.hwnd = NULL;
 	ShExecInfo.lpVerb = NULL;
+	//ShExecInfo.lpVerb = _T("runas");	//用管理员权限运行程序
 	ShExecInfo.lpFile = szFilePath;
 	ShExecInfo.lpParameters = szParame;
 	ShExecInfo.lpDirectory = NULL;
@@ -724,66 +751,66 @@ CTime PhdMethod::GetTimeOfDayLast(const CTime& time, int nDay)
 	return timeNew;
 }
 
-void PhdMethod::PurgeDatabase(AcDbDatabase* pDb)
-{
-	//块
-	AcDbObjectIdArray arridBlock = PhdBlock::GetBlkIdsOnDb(pDb);
-	pDb->purge(arridBlock);
-	for (int i = 0; i < arridBlock.length(); i++)
-	{
-		AcDbBlockTableRecordPointer pBlkTblRcd(arridBlock[i], AcDb::kForWrite);
-		if (Acad::eOk != pBlkTblRcd.openStatus())
-			continue;
-		pBlkTblRcd->erase();
-	}
-	//标注样式
-	AcDbObjectIdArray arridDimStyle = PhdDimStyle::GetDimStyleIdsOnDb(pDb);
-	pDb->purge(arridDimStyle);
-	for (int i = 0; i < arridDimStyle.length(); i++)
-	{
-		AcDbDimStyleTableRecordPointer pDimStyTblRcd(arridDimStyle[i], AcDb::kForWrite);
-		if (Acad::eOk != pDimStyTblRcd.openStatus())
-			continue;
-		pDimStyTblRcd->erase();
-	}
-	//组
-	AcDbObjectIdArray arridGroup = PhdGroup::GetGroupIdsOnDb(pDb);
-	pDb->purge(arridGroup);
-	for (int i = 0; i < arridGroup.length(); i++)
-	{
-		AcDbObjectPointer<AcDbGroup> pGroup(arridGroup[i], AcDb::kForWrite);
-		if (Acad::eOk != pGroup.openStatus())
-			continue;
-		pGroup->erase();
-	}
-	//图层
-	AcDbObjectIdArray arridLayer = PhdLayer::GetLayerIdsOnDb(pDb);
-	pDb->purge(arridLayer);
-	for (int i = 0; i < arridLayer.length(); i++)
-	{
-		AcDbLayerTableRecordPointer pLayerTblRcd(arridLayer[i], AcDb::kForWrite);
-		if (Acad::eOk != pLayerTblRcd.openStatus())
-			continue;
-		pLayerTblRcd->erase();
-	}
-	//线型
-	AcDbObjectIdArray arridLinetype = PhdLinetype::GetLinetypeIdsOnDb(pDb);
-	pDb->purge(arridLinetype);
-	for (int i = 0; i < arridLinetype.length(); i++)
-	{
-		AcDbLinetypeTableRecordPointer pLinetypeTblRcd(arridLinetype[i], AcDb::kForWrite);
-		if (Acad::eOk != pLinetypeTblRcd.openStatus())
-			continue;
-		pLinetypeTblRcd->erase();
-	}
-	//文字样式
-	AcDbObjectIdArray arridTextStyle = PhdTextStyle::GetTextStyleIdsOnDb(pDb);
-	pDb->purge(arridTextStyle);
-	for (int i = 0; i < arridTextStyle.length(); i++)
-	{
-		AcDbTextStyleTableRecordPointer pTextStyleTblRcd(arridTextStyle[i], AcDb::kForWrite);
-		if (Acad::eOk != pTextStyleTblRcd.openStatus())
-			continue;
-		pTextStyleTblRcd->erase();
-	}
-}
+// void PhdMethod::PurgeDatabase(AcDbDatabase* pDb)
+// {
+// 	//块
+// 	AcDbObjectIdArray arridBlock = PhdBlock::GetBlkIdsOnDb(pDb);
+// 	pDb->purge(arridBlock);
+// 	for (int i = 0; i < arridBlock.length(); i++)
+// 	{
+// 		AcDbBlockTableRecordPointer pBlkTblRcd(arridBlock[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pBlkTblRcd.openStatus())
+// 			continue;
+// 		pBlkTblRcd->erase();
+// 	}
+// 	//标注样式
+// 	AcDbObjectIdArray arridDimStyle = PhdDimStyle::GetDimStyleIdsOnDb(pDb);
+// 	pDb->purge(arridDimStyle);
+// 	for (int i = 0; i < arridDimStyle.length(); i++)
+// 	{
+// 		AcDbDimStyleTableRecordPointer pDimStyTblRcd(arridDimStyle[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pDimStyTblRcd.openStatus())
+// 			continue;
+// 		pDimStyTblRcd->erase();
+// 	}
+// 	//组
+// 	AcDbObjectIdArray arridGroup = PhdGroup::GetGroupIdsOnDb(pDb);
+// 	pDb->purge(arridGroup);
+// 	for (int i = 0; i < arridGroup.length(); i++)
+// 	{
+// 		AcDbObjectPointer<AcDbGroup> pGroup(arridGroup[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pGroup.openStatus())
+// 			continue;
+// 		pGroup->erase();
+// 	}
+// 	//图层
+// 	AcDbObjectIdArray arridLayer = PhdLayer::GetLayerIdsOnDb(pDb);
+// 	pDb->purge(arridLayer);
+// 	for (int i = 0; i < arridLayer.length(); i++)
+// 	{
+// 		AcDbLayerTableRecordPointer pLayerTblRcd(arridLayer[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pLayerTblRcd.openStatus())
+// 			continue;
+// 		pLayerTblRcd->erase();
+// 	}
+// 	//线型
+// 	AcDbObjectIdArray arridLinetype = PhdLinetype::GetLinetypeIdsOnDb(pDb);
+// 	pDb->purge(arridLinetype);
+// 	for (int i = 0; i < arridLinetype.length(); i++)
+// 	{
+// 		AcDbLinetypeTableRecordPointer pLinetypeTblRcd(arridLinetype[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pLinetypeTblRcd.openStatus())
+// 			continue;
+// 		pLinetypeTblRcd->erase();
+// 	}
+// 	//文字样式
+// 	AcDbObjectIdArray arridTextStyle = PhdTextStyle::GetTextStyleIdsOnDb(pDb);
+// 	pDb->purge(arridTextStyle);
+// 	for (int i = 0; i < arridTextStyle.length(); i++)
+// 	{
+// 		AcDbTextStyleTableRecordPointer pTextStyleTblRcd(arridTextStyle[i], AcDb::kForWrite);
+// 		if (Acad::eOk != pTextStyleTblRcd.openStatus())
+// 			continue;
+// 		pTextStyleTblRcd->erase();
+// 	}
+// }
