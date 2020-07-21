@@ -293,6 +293,17 @@ AcArray<AcDbCurve*> PhdUtility::SplitCurve(AcDbCurve* pCurve, const AcGePoint3dA
 	return arrSplitCurve;
 }
 
+AcArray<AcDbCurve*> PhdUtility::SplitCurve(const AcDbObjectId& idCurve,
+	const AcGePoint3dArray& arrSplitPt)
+{
+	AcArray<AcDbCurve*> arrpSplit;
+	AcDbObjectPointer<AcDbCurve> pCurve(idCurve,AcDb::kForRead);
+	if (Acad::eOk != pCurve.openStatus())
+		return arrpSplit;
+	arrpSplit = SplitCurve(pCurve, arrSplitPt);
+	return arrpSplit;
+}
+
 bool PhdUtility::ExtendCurveByDist(AcDbPolyline* pPline, bool isStartPt,
 	double dDist)
 {
@@ -2475,6 +2486,107 @@ bool PhdUtility::IsColinear(const AcGePoint3d& pt1, const AcGePoint3d& pt2, cons
 	AcGeLineSeg2d line2(PhdConver::ToPt2d(pt2), PhdConver::ToPt2d(pt3));
 	bool bRt = line1.isColinearTo(line2);
 	return bRt;
+}
+
+bool PhdUtility::PlineAddPts(AcDbPolyline* pPline, const AcGePoint3dArray& arrpt)
+{
+	AcDbPolyline* pTempPline = AcDbPolyline::cast(pPline->clone());
+	if (!pTempPline)
+		return false;
+	AcGePoint3d ptStart;
+	pTempPline->getStartPoint(ptStart);
+	for (int i = 0; i < arrpt.length(); i++)
+	{
+		AcArray<AcDbCurve*> arrpSplit = SplitCurve(pTempPline, arrpt[i]);
+		if (arrpSplit.length() != 2)
+		{
+			for (int j = 0; j < arrpSplit.length(); j++)
+				DEL(arrpSplit[j]);
+			DEL(pTempPline);
+			return false;
+		}
+		AcDbPolyline* pPline1 = AcDbPolyline::cast(arrpSplit[0]);
+		AcDbPolyline* pPline2 = AcDbPolyline::cast(arrpSplit[1]);
+
+		AcGePoint3dArray arrptTemp;
+		AcArray<double> arrdTemp;
+		AcGePoint3d ptCurStart;
+		pPline1->getStartPoint(ptCurStart);
+		if (ptStart.isEqualTo(ptCurStart))
+		{
+			int nNumVerts = pPline1->numVerts();
+			for (int j = 0; j < nNumVerts-1; j++)
+			{
+				AcGePoint3d pt;
+				double dBulge = 0;
+				pPline1->getPointAt(j, pt);
+				pPline1->getBulgeAt(j, dBulge);
+				arrptTemp.append(pt);
+				arrdTemp.append(dBulge);
+			}
+			nNumVerts = pPline2->numVerts();
+			for (int j = 0; j < nNumVerts; j++)
+			{
+				AcGePoint3d pt;
+				double dBulge = 0;
+				pPline2->getPointAt(j, pt);
+				pPline2->getBulgeAt(j, dBulge);
+				arrptTemp.append(pt);
+				arrdTemp.append(dBulge);
+			}
+		}
+		else
+		{
+			int nNumVerts = pPline2->numVerts();
+			for (int j = 0; j < nNumVerts - 1; j++)
+			{
+				AcGePoint3d pt;
+				double dBulge = 0;
+				pPline2->getPointAt(j, pt);
+				pPline2->getBulgeAt(j, dBulge);
+				arrptTemp.append(pt);
+				arrdTemp.append(dBulge);
+			}
+			nNumVerts = pPline1->numVerts();
+			for (int j = 0; j < nNumVerts; j++)
+			{
+				AcGePoint3d pt;
+				double dBulge = 0;
+				pPline1->getPointAt(j, pt);
+				pPline1->getBulgeAt(j, dBulge);
+				arrptTemp.append(pt);
+				arrdTemp.append(dBulge);
+			}
+		}
+		//创建新的多段线
+		AcDbPolyline* pNewPline = PhdEntity::CreatePolyline(arrptTemp, arrdTemp);
+		DEL(pTempPline);
+		pTempPline = pNewPline;
+		pTempPline->getStartPoint(ptStart);
+		for (int j = 0; j < arrpSplit.length(); j++)
+			DEL(arrpSplit[j]);
+	}
+	//得到新的点和凸度
+	AcGePoint2dArray arrptNew;
+	AcArray<double> arrdNew;
+	for (int i = 0; i < pTempPline->numVerts(); i++)
+	{
+		AcGePoint2d pt;
+		double dBulge = 0;
+		pTempPline->getPointAt(i, pt);
+		pTempPline->getBulgeAt(i, dBulge);
+		arrptNew.append(pt);
+		arrdNew.append(dBulge);
+	}
+	DEL(pTempPline);
+	//
+	int nNumVerts = pPline->numVerts();
+	for (int i = nNumVerts - 1; i > 0; i--)
+		pPline->removeVertexAt(i);
+	for (int i = 1; i < arrptNew.length(); i++)
+		pPline->addVertexAt(i, arrptNew[i], arrdNew[i]);
+
+	return true;
 }
 
 bool PhdUtility::FilletCurve(double dRadius, AcDbArc* pArc1, const AcGePoint3d& pt1, AcDbArc* pArc2, const AcGePoint3d& pt2, AcDbArc*& pArcFillet)

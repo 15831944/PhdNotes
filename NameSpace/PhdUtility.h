@@ -60,6 +60,8 @@ namespace PhdUtility {
 	// Explain:	  输入的点必须要用getClosestPointTo函数重新获得
 	AcArray<AcDbCurve*> SplitCurve(AcDbCurve* pCurve, const AcGePoint3dArray& arrSplitPt);
 	AcArray<AcDbCurve*> SplitCurve(AcDbCurve* pCurve, const AcGePoint3d& ptSplit);
+	AcArray<AcDbCurve*> SplitCurve(const AcDbObjectId& idCurve,
+		const AcGePoint3dArray& arrSplitPt);
 
 	// Summary: 通过距离延伸线段  
 	// Time:	  2020年2月12日 peihaodong
@@ -356,6 +358,10 @@ namespace PhdUtility {
 	bool IsColinear(const AcGePoint3d& pt1,const AcGePoint3d& pt2,
 		const AcGePoint3d& pt3);
 
+	// Summary:   给一条多段线增加点
+	// Time:	  2020年7月16日 peihaodong
+	// Explain:	  
+	bool PlineAddPts(AcDbPolyline* pPline,const AcGePoint3dArray& arrpt);
 
 }
 
