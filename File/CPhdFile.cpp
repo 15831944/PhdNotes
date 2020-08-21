@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "CPhdFile.h"
+#include <locale> 
 
 
 CPhdFile::CPhdFile(const CString& strFilePath)
@@ -16,6 +17,7 @@ bool CPhdFile::WriteString(const CString& str) const
 {
 	CStdioFile file;
 	CFileException error;
+	setlocale(LC_CTYPE, ("chs"));
 	if (!file.Open(m_strFilePath, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate, &error))
 		//CFile::modeCreate | CFile::modeNoTruncate的组合使添加文件时追加到已有文件末尾
 		return false;
@@ -23,7 +25,7 @@ bool CPhdFile::WriteString(const CString& str) const
 	file.SeekToEnd();
 
 	CString strData = str;
-	strData += _T("\r\n");//相当于回车字符
+	strData += _T("\n");//相当于回车字符
 	file.WriteString(strData);
 
 	file.Close();
@@ -34,6 +36,7 @@ bool CPhdFile::WriteString(const std::vector<CString>& vecstr) const
 {
 	CStdioFile file;
 	CFileException error;
+	setlocale(LC_CTYPE, ("chs"));
 	if (!file.Open(m_strFilePath, CFile::modeWrite | CFile::modeCreate | CFile::modeNoTruncate, &error))
 		//CFile::modeCreate | CFile::modeNoTruncate的组合使添加文件时追加到已有文件末尾
 		return false;
@@ -43,7 +46,8 @@ bool CPhdFile::WriteString(const std::vector<CString>& vecstr) const
 	for (int i = 0; i < vecstr.size(); ++i)
 	{
 		CString strData = vecstr[i];
-		strData += _T("\r\n");//相当于回车字符
+		strData += _T("\n");//相当于回车字符
+		//strData += _T("\r\n");//相当于回车字符
 		file.WriteString(strData);
 	}
 
@@ -55,6 +59,7 @@ bool CPhdFile::ReadString(std::vector<CString>& vecStr) const
 {
 	CStdioFile file;
 	CFileException error;
+	setlocale(LC_CTYPE, ("chs"));
 	if (!file.Open(m_strFilePath, CFile::modeRead | CFile::shareDenyNone, &error))
 		return false;
 

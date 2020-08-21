@@ -40,5 +40,7 @@ namespace PhdCommand {
 		AcDbObjectId& idPline, int nPrecision = 10);
 	bool SplineToPline(AcDbSpline* pSpline,
 		AcDbObjectId& idPline, int nPrecision = 10);
+	bool SplineToPline2(AcDbSpline* pSpline,
+		AcDbObjectId& idPline);
 }
 

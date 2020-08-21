@@ -216,7 +216,8 @@ bool PhdUiPr::SelEnts(LPCTSTR szPrompt, const AcArray<AcRxClass*>& arrclassType,
 	}
 }
 
-bool PhdUiPr::SelKey(LPCTSTR szPrompt, const std::vector<SKey>& vecKey, CString& key)
+bool PhdUiPr::SelKey(LPCTSTR szPrompt, const std::vector<SKey>& vecKey, 
+	CString& key)
 {
 	/*
 	TCHAR szKword1[132];

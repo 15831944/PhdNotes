@@ -27,4 +27,5 @@ namespace PhdSelSet {
 	// Explain:	  使用此函数时需要显示全部实体
 	AcDbObjectIdArray GetAreaEnts(const AcGePoint3d& ptMin,const AcGePoint3d& ptMax);
 
+
 }

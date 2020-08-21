@@ -1731,6 +1731,10 @@ AcDbEntity* PhdUtility::MirrorEnt(AcDbEntity* pEnt, const AcGePoint3d& pt1, cons
 	mat.setToMirroring(AcGeLine3d(pt1, pt2));
 	AcDbEntity* pCopy = AcDbEntity::cast(pEnt->clone());
 	pCopy->transformBy(mat);
+
+	AcGeMatrix3d mat2;
+	mat2.setToMirroring(AcGePlane::kXYPlane);
+	pCopy->transformBy(mat2);
 	return pCopy;
 }
 
