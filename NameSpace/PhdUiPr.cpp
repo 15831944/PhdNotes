@@ -436,12 +436,17 @@ bool PhdUiPr::GetInt(LPCTSTR szPrompt, int& nValue, int nDefault)
 	CString prompt;
 	prompt.Format(_T("\n%s<%d>: "), szPrompt, nDefault);
 
-	int initFlag = RSG_NONULL;	//非空
+	int initFlag = 0;	
 	acedInitGet(initFlag, NULL);
 	int result = acedGetInt(prompt, &nValue);
 
-	if (result == RTNORM)
+	if (result == RTNORM)		//函数操作成功
 		return true;
+	else if (result == RTNONE)	//空格、回车
+	{
+		nValue = nDefault;
+		return true;
+	}
 	else
 		return false;
 }
