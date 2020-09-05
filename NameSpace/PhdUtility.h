@@ -56,6 +56,10 @@ namespace PhdUtility {
 	AcArray<AcDbCurve*> OffsetCurve(double dOffset, const AcGePoint3d& pt,
 		AcDbCurve* pCurve,bool bOpposite = false);
 
+	//得到向量方向在线段左右的正负值
+	bool GetPosAngNegValue(AcDbCurve* pCurve, 
+		const AcGePoint3d& ptBase, const AcGeVector3d& vecNormal);
+
 	// Summary:   打断线段
 	// Time:	  2020年4月9日 peihaodong
 	// Explain:	  输入的点必须要用getClosestPointTo函数重新获得

@@ -222,6 +222,40 @@ AcArray<AcDbCurve*> PhdUtility::OffsetCurve(AcDbCurve* pCurve, double dOffsetDis
 	return arrOffsetCurve;
 }
 
+bool PhdUtility::GetPosAngNegValue(AcDbCurve* pCurve, const AcGePoint3d& ptBase, 
+	const AcGeVector3d& vecNormal)
+{
+	AcGePoint3d ptNew = ptBase + vecNormal;
+	bool bFlag = true;
+
+	//算出实体平面法向量
+	AcGePlane plane;
+	AcDb::Planarity type;
+	pCurve->getPlane(plane, type);
+	AcGeVector3d vecNormalNew = plane.normal();
+	//根据偏移点（鼠标点），找出矩形上距离该点最近的点ptClosed
+	AcGePoint3d ptClosed;
+	pCurve->getClosestPointTo(ptNew, ptClosed);
+	//算出矩形上经过ptClosed的切线，即经过该点的那条边vecDerive
+	AcGeVector3d vecDerive;
+	pCurve->getFirstDeriv(ptClosed, vecDerive);
+	//算出ptNew点到ptClosed点的距离dDistance
+	double dDistance = ptNew.distanceTo(ptClosed);
+	//使用ptClosed得到一个偏移向量vecOffsetdir
+	AcGeVector3d vecOffsetdir = ptNew - ptClosed;
+	//vecOffset和vecDerive做叉乘，算出法向量vecOffsetNormal，看vecOffsetNormal和
+	//vecNormal是否同向，如果同向偏移距离为dOffset，如果不同向偏移距离为-dOffset
+	AcGeVector3d vecOffsetNormal = vecOffsetdir.crossProduct(vecDerive);
+	bool bCodirectional = vecOffsetNormal.isCodirectionalTo(vecNormalNew);
+	if (!bCodirectional)
+		bFlag = !bFlag;
+	//如果是直线，取反
+	if (pCurve->isKindOf(AcDbLine::desc()))
+		bFlag = !bFlag;
+
+	return bFlag;
+}
+
 AcArray<AcDbCurve*> PhdUtility::OffsetCurve(double dOffset, const AcGePoint3d& pt,
 	AcDbCurve* pCurve, bool bOpposite /*= false*/)
 {
