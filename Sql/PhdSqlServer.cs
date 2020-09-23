@@ -7,16 +7,16 @@ using System.Data.SqlClient;    //连接数据库
 
 namespace Phd
 {
-    class CPhdSqlServer
+    class PhdSqlServer
     {
         private SqlConnection m_connect;    //
         private SqlCommand m_command;
         private SqlDataReader m_reader;
         private string m_strLastError;
 
-        public CPhdSqlServer()
+        public PhdSqlServer()
         { }
-        ~CPhdSqlServer()
+        ~PhdSqlServer()
         { }
 
         //连接数据库
