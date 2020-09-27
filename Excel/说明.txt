@@ -1,2 +1,3 @@
-CExcelLibXl类：
+﻿CExcelLibXl类：
 1、需要添加LibXL-for-Windows-3.8.0的sdk
+2、需要把libxl.dll文件放到生成目录下
